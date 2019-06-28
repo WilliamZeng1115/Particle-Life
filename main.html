@@ -6,58 +6,97 @@
 </head>
 
 <body>
-<h1> Here is the simulation </h1>
-<canvas class="myCanvas">
-<p></p>
+<canvas class='myCanvas' onclick="updateMouse(event)">
 </canvas>
 
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+  }
+</style>
 
 <script>
 var canvas = document.querySelector('.myCanvas');
-var width = canvas.width = 500;
-var height = canvas.height = 500;
 var ctx = canvas.getContext('2d');
-ctx.fillStyle = 'rgb(0, 0, 0)';
-ctx.fillRect(0, 0, width, height);
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-var image = new Image();
-image.src = './walk-right.png';
-image.onload = draw;
+var radius = 5;
+var particles = [];
+class particle {
 
-var sprite = 0;
-var posX = 0;
+  constructor(type, x, y) {
+    var canvas = document.querySelector('.myCanvas');
+    this.ctx = canvas.getContext('2d');
+    this.type = type;
+    this.x = x;
+    this.y = y;
 
-function draw() {
-ctx.fillRect(-(width/2), -(height/2), width, height);
-ctx.drawImage(image, (sprite*102), 0, 102, 148, 0+posX, -74, 102, 148);
-if (posX % 13 === 0) {
-    if (sprite === 5) {
-      sprite = 0;
-    } else {
-      sprite++;
+    switch(type){
+      case 0:
+        this.color = 'rgb(255, 100, 100)'
+        break;
+      case 1:
+        this.color = 'rgb(100, 255, 100)'
+        break;
+      case 2:
+        this.color = 'rgb(100, 100, 255)'
+        break;
+      default:
+        this.color = 'rgb(255, 255, 255)'
+        break;
+      }
+    this.ctx.fillStyle = this.color;
+
+    this.velocityx = (Math.random() - 0.5);
+    this.velocityy = (Math.random() - 0.5);
+  }
+
+  renderImage() {
+    this.ctx.beginPath();
+    this.ctx.arc(this.x, this.y, radius, 0, 2 * Math.PI);
+    this.ctx.fillStyle = this.color;
+    this.ctx.fill();
+  }
+
+  collisionCheck(){
+    for(var i = 0; i < particles.length; i++){
+      if(!(particles[i] == this) && (Math.sqrt((this.x - particles[i].x)**2 + (this.y - particles[i].y)**2) < 10)){
+        this.velocityx *= -1;
+        this.velocityy *= -1;
+      }
     }
   }
-if(posX > width/2) {
-    newStartPos = -((width/2) + 102);
-    posX = Math.ceil(newStartPos / 13) * 13;
-    console.log(posX);
-  } else {
-    posX += 2;
+
+  move() {
+    this.renderImage();
+    this.collisionCheck();
+
+    this.x += this.velocityx;
+    this.y += this.velocityy;
   }
-
-window.requestAnimationFrame(draw);
 }
 
-ctx.translate(width/2, height/2);
-draw();
-
-function rand(min, max) {
-  return Math.floor(Math.random() * (max-min+1)) + (min);
+function updateMouse(event) {
+  var particleBase = new particle(Math.floor(Math.random()*4), event.clientX,  event.clientY);
+  particles.push(particleBase);
+  particleBase.renderImage();
 }
 
-function degToRad(degrees) {
-  return degrees * Math.PI / 180;
-};
+function loop(){
+  const context = canvas.getContext('2d');
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = 'rgb(0, 0, 0)';
+  ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+  particles.forEach(function(element) {
+    element.move();
+  });
+  requestAnimationFrame(loop);
+}
+
+loop();
+
 </script>
 </body>
 </html>
