@@ -22,7 +22,7 @@ var ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-var radius = 5;
+var radius = 4;
 var particles = [];
 class particle {
 
@@ -35,13 +35,19 @@ class particle {
 
     switch(type){
       case 0:
-        this.color = 'rgb(255, 100, 100)'
+        this.color = 'rgb(159, 26, 189)'
         break;
       case 1:
-        this.color = 'rgb(100, 255, 100)'
+        this.color = 'rgb(78, 189, 26)'
         break;
       case 2:
-        this.color = 'rgb(100, 100, 255)'
+        this.color = 'rgb(17, 242, 250)'
+        break;
+      case 3:
+        this.color = 'rgb(250, 17, 64)'
+        break;
+      case 4:
+        this.color = 'rgb(250, 188, 17)'
         break;
       default:
         this.color = 'rgb(255, 255, 255)'
@@ -62,7 +68,7 @@ class particle {
 
   collisionCheck(){
     for(var i = 0; i < particles.length; i++){
-      if(!(particles[i] == this) && (Math.sqrt((this.x - particles[i].x)**2 + (this.y - particles[i].y)**2) < 10)){
+      if(!(particles[i] == this) && (Math.sqrt((this.x - particles[i].x)**2 + (this.y - particles[i].y)**2) < radius*2)){
         this.velocityx *= -1;
         this.velocityy *= -1;
       }
@@ -79,7 +85,7 @@ class particle {
 }
 
 function updateMouse(event) {
-  var particleBase = new particle(Math.floor(Math.random()*4), event.clientX,  event.clientY);
+  var particleBase = new particle(Math.floor(Math.random()*6), event.clientX,  event.clientY);
   particles.push(particleBase);
   particleBase.renderImage();
 }
