@@ -24,7 +24,6 @@ canvas.height = window.innerHeight;
 
 var radius = 4;
 var particles = [];
-var particlesTemp = [];
 class particle {
 
   constructor(type, x, y) {
@@ -68,13 +67,8 @@ class particle {
     this.ctx.fill();
   }
 
-  collisionCheck(){
+  wallCheck(){
     for(var i = 0; i < particles.length; i++){
-      if(particlesTemp[i] != this && Math.sqrt((this.x - particlesTemp[i].x)**2 + (this.y - particlesTemp[i].y)**2) < radius*2){
-        this.velocityx = particlesTemp[i].velocityx;
-        this.velocityy = particlesTemp[i].velocityy;
-      }
-
       if(this.x < 4 || this.x > (window.innerWidth - 4)){
         this.velocityx *= -1;
       }
@@ -86,7 +80,7 @@ class particle {
   }
 
   move() {
-    this.collisionCheck();
+    this.wallCheck();
     this.renderImage();
 
     this.x += this.velocityx;
@@ -100,12 +94,27 @@ function updateMouse(event) {
   particleBase.renderImage();
 }
 
+function collisionCheck(part1, part2){
+  if(Math.sqrt((part1.x - part2.x)**2 + (part1.y - part2.y)**2) < radius*2){
+    var tempx = part1.velocityx;
+    var tempy = part1.velocityy;
+    part1.velocityx = part2.velocityx;
+    part1.velocityy = part2.velocityy;
+    part2.velocityx = tempx;
+    part2.velocityy = tempy;
+  }
+}
+
 function loop(){
   const context = canvas.getContext('2d');
   context.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = 'rgb(0, 0, 0)';
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
-  particlesTemp = particles.slice(0);
+  for(var i = 0; i < particles.length; i++){
+    for(var j = i; j < particles.length; j++){
+      collisionCheck(i, j)
+    }
+  }
   particles.forEach(function(element) {
     element.move();
   });
