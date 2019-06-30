@@ -24,6 +24,7 @@ canvas.height = window.innerHeight;
 
 var radius = 4;
 var particles = [];
+var particlesTemp = [];
 class particle {
 
   constructor(type, x, y) {
@@ -53,6 +54,7 @@ class particle {
         this.color = 'rgb(255, 255, 255)'
         break;
       }
+
     this.ctx.fillStyle = this.color;
 
     this.velocityx = (Math.random() - 0.5);
@@ -68,16 +70,24 @@ class particle {
 
   collisionCheck(){
     for(var i = 0; i < particles.length; i++){
-      if(!(particles[i] == this) && (Math.sqrt((this.x - particles[i].x)**2 + (this.y - particles[i].y)**2) < radius*2)){
+      if(particlesTemp[i] != this && Math.sqrt((this.x - particlesTemp[i].x)**2 + (this.y - particlesTemp[i].y)**2) < radius*2){
+        this.velocityx = particlesTemp[i].velocityx;
+        this.velocityy = particlesTemp[i].velocityy;
+      }
+
+      if(this.x < 4 || this.x > (window.innerWidth - 4)){
         this.velocityx *= -1;
+      }
+
+      if(this.y < 4 || this.y > (window.innerHeight - 4)){
         this.velocityy *= -1;
       }
     }
   }
 
   move() {
-    this.renderImage();
     this.collisionCheck();
+    this.renderImage();
 
     this.x += this.velocityx;
     this.y += this.velocityy;
@@ -95,6 +105,7 @@ function loop(){
   context.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = 'rgb(0, 0, 0)';
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+  particlesTemp = particles.slice(0);
   particles.forEach(function(element) {
     element.move();
   });
