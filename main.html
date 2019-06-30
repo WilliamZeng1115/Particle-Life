@@ -111,7 +111,7 @@ function loop(){
   ctx.fillStyle = 'rgb(0, 0, 0)';
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
   for(var i = 0; i < particles.length; i++){
-    for(var j = i; j < particles.length; j++){
+    for(var j = i + 1; j < particles.length; j++){
       collisionCheck(i, j)
     }
   }
