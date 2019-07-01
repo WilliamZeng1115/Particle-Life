@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Particle Life</title>
+<title>Particles</title>
 </style>
 </head>
 
@@ -22,15 +22,15 @@ var ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+var radius = 4;
+var friction = 0.995
+var collisionElasticity = 0.75
+var particles = [];
 var particleCoefficents = []
 for(var i = 0; i < 6; i++){
-  particleCoefficents.push(Math.random()*3.5-1.5)
+  particleCoefficents.push(Math.random()*4-2)
 }
 
-var radius = 4;
-var friction = 0.999
-var collisionElasticity = 0.995
-var particles = [];
 class particle {
 
   constructor(type, x, y) {
@@ -63,8 +63,8 @@ class particle {
 
     this.ctx.fillStyle = this.color;
 
-    this.velocityx = (Math.random() - 0.5);
-    this.velocityy = (Math.random() - 0.5);
+    this.velocityx = 0;
+    this.velocityy = 0;
   }
 
   renderImage() {
@@ -102,7 +102,7 @@ function updateMouse(event) {
 }
 
 function collisionCheck(part1, part2){
-  if(distance(part1, part2) < radius*2){
+  if(distanceFinder(part1, part2) < radius*2){
     var tempx = part1.velocityx*collisionElasticity;
     var tempy = part1.velocityy*collisionElasticity;
     part1.velocityx = part2.velocityx*collisionElasticity;
@@ -112,12 +112,12 @@ function collisionCheck(part1, part2){
   }
 }
 
-function distance(part1, part2){
+function distanceFinder(part1, part2){
   return Math.sqrt((part1.x - part2.x)**2 + (part1.y - part2.y)**2);
 }
 
 function force(forced, forcing){
-  var distance = distance(forced, forcing)/radius;
+  var distance = distanceFinder(forced, forcing)/radius;
 
   if(distance < 4){
     var force = ((distance - 4)**2)/3;
@@ -129,10 +129,10 @@ function force(forced, forcing){
     var force = 0;
   }
 
-  force *= particleCoefficents[forced.type] * particleCoefficents[forcing.type]
+  force *= particleCoefficents[forced.type] * particleCoefficents[forcing.type] * 0.1;
 
-  forced.velocityx += force*((forced.x - forcing.x)/distance)
-  forced.velocityy += force*((forced.y - forcing.y)/distance)
+  forced.velocityx += force*((forced.x - forcing.x)/distance);
+  forced.velocityy += force*((forced.y - forcing.y)/distance);
 }
 
 function loop(){
