@@ -24,6 +24,7 @@ canvas.height = window.innerHeight;
 
 var radius = 4;
 var friction = 0.999
+var collisionElasticity = 0.995
 var particles = [];
 class particle {
 
@@ -96,14 +97,34 @@ function updateMouse(event) {
 }
 
 function collisionCheck(part1, part2){
-  if(Math.sqrt((part1.x - part2.x)**2 + (part1.y - part2.y)**2) < radius*2){
-    var tempx = part1.velocityx;
-    var tempy = part1.velocityy;
-    part1.velocityx = part2.velocityx;
-    part1.velocityy = part2.velocityy;
+  if(distance(part1, part2) < radius*2){
+    var tempx = part1.velocityx*collisionElasticity;
+    var tempy = part1.velocityy*collisionElasticity;
+    part1.velocityx = part2.velocityx*collisionElasticity;
+    part1.velocityy = part2.velocityy*collisionElasticity;
     part2.velocityx = tempx;
     part2.velocityy = tempy;
   }
+}
+
+function distance(part1, part2){
+  return Math.sqrt((part1.x - part2.x)**2 + (part1.y - part2.y)**2);
+}
+
+function force(forced, forcing){
+  var distance = distance(forced, forcing);
+
+  if(distance < 16){
+    var force =
+  } else if(distance > 24 && distance < 32){
+    var force =
+  } else if(distance > 32 && distance < 40){
+    var force =
+  } else {
+    return void;
+  }
+
+
 }
 
 function loop(){
@@ -114,9 +135,18 @@ function loop(){
 
   for(var i = 0; i < particles.length; i++){
     for(var j = i + 1; j < particles.length; j++){
-      collisionCheck(particles[i], particles[j])
+      collisionCheck(particles[i], particles[j]);
     }
   }
+
+  for(var i = 0; i < particles.length; i++){
+    for(var j = 0; j < particles.length; j++){
+      if(i != j){
+        force(particles[i], particles[j]);
+      }
+    }
+  }
+
   particles.forEach(function(element) {
     element.move();
   });
