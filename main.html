@@ -22,6 +22,11 @@ var ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+var particleCoefficents = []
+for(var i = 0; i < 6; i++){
+  particleCoefficents.push(Math.random()*3.5-1.5)
+}
+
 var radius = 4;
 var friction = 0.999
 var collisionElasticity = 0.995
@@ -112,19 +117,22 @@ function distance(part1, part2){
 }
 
 function force(forced, forcing){
-  var distance = distance(forced, forcing);
+  var distance = distance(forced, forcing)/radius;
 
-  if(distance < 16){
-    var force =
-  } else if(distance > 24 && distance < 32){
-    var force =
-  } else if(distance > 32 && distance < 40){
-    var force =
+  if(distance < 4){
+    var force = ((distance - 4)**2)/3;
+  } else if(distance > 6 && distance < 8){
+    var force = 1.5*distance-9;
+  } else if(distance > 8 && distance < 10){
+    var force = -1.5*distance+15;
   } else {
-    return void;
+    var force = 0;
   }
 
+  force *= particleCoefficents[forced.type] * particleCoefficents[forcing.type]
 
+  forced.velocityx += force*((forced.x - forcing.x)/distance)
+  forced.velocityy += force*((forced.y - forcing.y)/distance)
 }
 
 function loop(){
