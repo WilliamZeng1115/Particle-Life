@@ -24,12 +24,14 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 var radius = 4;
-var friction = 0.995;
+var friction = 0.99;
 var collisionElasticity = 0.75;
-var particles = [[]];
-var particleCoefficents = []
-for(var i = 0; i < 36; i++){
-    particleCoefficents.push(Math.random()*4-2);
+var particles = [];
+var particleCoefficents = [[],[],[],[],[],[]];
+for(var i = 0; i < 6; i++){
+  for(var j = 0; j < 6; j++){
+    particleCoefficents[i][j]= Math.random()*4-2;
+  }
 }
 
 class particle {
@@ -130,7 +132,7 @@ function force(forced, forcing){
     var force = 0;
   }
 
-  force *= particleCoefficents[forced.type][forcing.type] * 0.1;
+  force *= particleCoefficents[forced.type][forcing.type] * 0.05;
 
   forced.velocityx += force*((forced.x - forcing.x)/distance);
   forced.velocityy += force*((forced.y - forcing.y)/distance);
