@@ -6,7 +6,7 @@
 </head>
 
 <body>
-<canvas class='myCanvas' onclick="updateMouse(event)">
+<canvas class='myCanvas' onclick='updateMouse(event)'>
 </canvas>
 
 <style>
@@ -96,6 +96,13 @@ class particle {
   }
 }
 
+function collisionChecker(part1, part2){
+  if(Math.sqrt((part1.x - part2.x)**2 + (part1.y - part2.y)**2) < radius*2){
+    part1.velocityx = part2.velocityx = (part1.velocityx + part2.velocityx)/2;
+    part1.velocityy = part2.velocityy = (part1.velocityy + part2.velocityy)/2;
+  }
+}
+
 function updateMouse(event) {
   var particleBase = new particle(Math.floor(Math.random()*6), event.clientX,  event.clientY);
   particles.push(particleBase);
@@ -132,6 +139,12 @@ function loop(){
     for(var j = 0; j < particles.length; j++){
       if(i != j){
         force(particles[i], particles[j]);
+      }
+    }
+
+    for(var i = 0; i < particles.length; i++){
+      for(var j = i + 1; j < particles.length; j++){
+        collisionChecker(particles[i], particles[j]);
       }
     }
   }
