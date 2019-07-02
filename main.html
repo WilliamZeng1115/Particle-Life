@@ -23,9 +23,9 @@ var ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+var forceMultiplyer = 0.1;
 var radius = 4;
-var friction = 0.99;
-var collisionElasticity = 0.75;
+var friction = 0.98;
 var particles = [];
 var particleCoefficents = [[],[],[],[],[],[]];
 for(var i = 0; i < 6; i++){
@@ -88,11 +88,9 @@ class particle {
   }
 
   move() {
-    this.wallCheck();
-    this.renderImage();
-
     this.x += this.velocityx;
     this.y += this.velocityy;
+
     this.velocityx *= friction;
     this.velocityy *= friction;
   }
@@ -104,35 +102,21 @@ function updateMouse(event) {
   particleBase.renderImage();
 }
 
-function collisionCheck(part1, part2){
-  if(distanceFinder(part1, part2) < radius*2){
-    var tempx = part1.velocityx*collisionElasticity;
-    var tempy = part1.velocityy*collisionElasticity;
-    part1.velocityx = part2.velocityx*collisionElasticity;
-    part1.velocityy = part2.velocityy*collisionElasticity;
-    part2.velocityx = tempx;
-    part2.velocityy = tempy;
-  }
-}
-
-function distanceFinder(part1, part2){
-  return Math.sqrt((part1.x - part2.x)**2 + (part1.y - part2.y)**2);
-}
-
 function force(forced, forcing){
-  var distance = distanceFinder(forced, forcing)/radius;
+  var distance = Math.sqrt((forced.x - forcing.x)**2 + (forced.y - forcing.y)**2);
+  var force = 0
 
-  if(distance < 4){
-    var force = ((distance - 4)**2)/3;
-  } else if(distance > 6 && distance < 8){
-    var force = 1.5*distance-9;
-  } else if(distance > 8 && distance < 10){
-    var force = -1.5*distance+15;
-  } else {
-    var force = 0;
+  if(distance < 2*radius){
+    force = ((distance - 2*radius)**2)/(radius) * -1 * forceMultiplyer;
   }
 
-  force *= particleCoefficents[forced.type][forcing.type] * 0.05;
+  if(distance > radius*2 && distance < radius*5){
+    force = 0.5*(distance-2*radius);
+    force *= particleCoefficents[forced.type][forcing.type] * forceMultiplyer;
+  } else if(distance > radius*5 && distance < radius*8){
+    force = -0.5*(distance-8*radius);
+    force *= particleCoefficents[forced.type][forcing.type] * forceMultiplyer;
+  }
 
   forced.velocityx += force*((forced.x - forcing.x)/distance);
   forced.velocityy += force*((forced.y - forcing.y)/distance);
@@ -145,12 +129,6 @@ function loop(){
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
   for(var i = 0; i < particles.length; i++){
-    for(var j = i + 1; j < particles.length; j++){
-      collisionCheck(particles[i], particles[j]);
-    }
-  }
-
-  for(var i = 0; i < particles.length; i++){
     for(var j = 0; j < particles.length; j++){
       if(i != j){
         force(particles[i], particles[j]);
@@ -160,6 +138,8 @@ function loop(){
 
   particles.forEach(function(element) {
     element.move();
+    element.renderImage();
+    element.wallCheck();
   });
 
   requestAnimationFrame(loop);
