@@ -154,7 +154,7 @@ function loop(){
 }
 
 function start(){
-  for(var i = 0; i < 200; i++){
+  for(var i = 0; i < (canvas.width*canvas.height)/2700; i++){
     var particleBase = new particle(Math.floor(Math.random()*6), Math.random()*canvas.width, Math.random()*canvas.height);
     particles.push(particleBase);
   }
