@@ -23,14 +23,17 @@ var ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-var forceMultiplyer = 0.1;
+var forceMultiplyer = 0.04;
 var radius = 4;
-var friction = 0.98;
+var friction = 0.8;
 var particles = [];
-var particleCoefficents = [[],[],[],[],[],[]];
+var forceMagnitudes = [[],[],[],[],[],[]];
+var forceDistances = [[],[],[],[],[],[]];
+
 for(var i = 0; i < 6; i++){
   for(var j = 0; j < 6; j++){
-    particleCoefficents[i][j]= Math.random()*4-2;
+    forceMagnitudes[i][j]= Math.random()*4-2;
+    forceDistances[i][j]= Math.random()/2+0.75;
   }
 }
 
@@ -42,6 +45,8 @@ class particle {
     this.type = type;
     this.x = x;
     this.y = y;
+    this.velocityx = 0;
+    this.velocityy = 0;
 
     switch(type){
       case 0:
@@ -63,11 +68,7 @@ class particle {
         this.color = 'rgb(255, 255, 255)'
         break;
       }
-
     this.ctx.fillStyle = this.color;
-
-    this.velocityx = 0;
-    this.velocityy = 0;
   }
 
   renderImage() {
@@ -78,12 +79,16 @@ class particle {
   }
 
   wallCheck(){
-    if(this.x < radius || this.x > (window.innerWidth - radius)){
-      this.velocityx *= -1;
+    if(this.x < radius){
+      this.velocityx = Math.abs(this.velocityx) + 3;
+    } else if (this.x > (window.innerWidth - radius)){
+      this.velocityx = (Math.abs(this.velocityx) + 3) * -1;
     }
 
-    if(this.y < radius || this.y > (window.innerHeight - radius)){
-      this.velocityy *= -1;
+    if(this.y < radius){
+      this.velocityy = Math.abs(this.velocityy) + 3;
+    } else if (this.y > (window.innerHeight - radius)){
+      this.velocityy = (Math.abs(this.velocityy) + 3) * -1;
     }
   }
 
@@ -96,15 +101,8 @@ class particle {
   }
 }
 
-function collisionChecker(part1, part2){
-  if(Math.sqrt((part1.x - part2.x)**2 + (part1.y - part2.y)**2) < radius*2){
-    part1.velocityx = part2.velocityx = (part1.velocityx + part2.velocityx)/2;
-    part1.velocityy = part2.velocityy = (part1.velocityy + part2.velocityy)/2;
-  }
-}
-
 function updateMouse(event) {
-  var particleBase = new particle(Math.floor(Math.random()*6), event.clientX,  event.clientY);
+  var particleBase = new particle(Math.floor(Math.random()*6), event.clientX, event.clientY);
   particles.push(particleBase);
   particleBase.renderImage();
 }
@@ -114,15 +112,13 @@ function force(forced, forcing){
   var force = 0
 
   if(distance < 2*radius){
-    force = ((distance - 2*radius)**2)/(radius) * -1 * forceMultiplyer;
-  }
-
-  if(distance > radius*2 && distance < radius*5){
-    force = 0.5*(distance-2*radius);
-    force *= particleCoefficents[forced.type][forcing.type] * forceMultiplyer;
-  } else if(distance > radius*5 && distance < radius*8){
-    force = -0.5*(distance-8*radius);
-    force *= particleCoefficents[forced.type][forcing.type] * forceMultiplyer;
+    force = ((distance - 2*radius)**2)/(radius) * 0.4;
+  } else if(distance <= radius*6*forceDistances[forced.type][forcing.type]){
+    force = 0.5*(distance-2*radius*forceDistances[forced.type][forcing.type]);
+    force *= forceMagnitudes[forced.type][forcing.type] * forceMultiplyer;
+  } else if(distance <= radius*10*forceDistances[forced.type][forcing.type]){
+    force = -0.5*(distance-10*radius*forceDistances[forced.type][forcing.type]);
+    force *= forceMagnitudes[forced.type][forcing.type] * forceMultiplyer;
   }
 
   forced.velocityx += force*((forced.x - forcing.x)/distance);
@@ -136,15 +132,14 @@ function loop(){
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
   for(var i = 0; i < particles.length; i++){
+    this.forcex = 0;
+    this.forcey = 0;
+  }
+
+  for(var i = 0; i < particles.length; i++){
     for(var j = 0; j < particles.length; j++){
       if(i != j){
         force(particles[i], particles[j]);
-      }
-    }
-
-    for(var i = 0; i < particles.length; i++){
-      for(var j = i + 1; j < particles.length; j++){
-        collisionChecker(particles[i], particles[j]);
       }
     }
   }
@@ -158,6 +153,14 @@ function loop(){
   requestAnimationFrame(loop);
 }
 
+function start(){
+  for(var i = 0; i < 200; i++){
+    var particleBase = new particle(Math.floor(Math.random()*6), Math.random()*canvas.width, Math.random()*canvas.height);
+    particles.push(particleBase);
+  }
+}
+
+start();
 loop();
 
 </script>
