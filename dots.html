@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Particles</title>
+<title>Dots</title>
 </style>
 </head>
 
@@ -18,29 +18,29 @@
 </style>
 
 <script>
-var canvas = document.querySelector('.myCanvas');
-var ctx = canvas.getContext('2d');
+let canvas = document.querySelector('.myCanvas');
+let ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-var forceMultiplyer = 0.04;
-var radius = 4;
-var friction = 0.85;
-var particles = [];
-var forceMagnitudes = [[],[],[],[],[],[],[],[],[],[]];
-var forceDistances = [[],[],[],[],[],[],[],[],[],[]];
+let forceMultiplyer = 0.04;
+let radius = 4;
+let friction = 0.86;
+let particles = [];
+let forceMagnitudes = [[],[],[],[],[],[],[]];
+let forceDistances = [[],[],[],[],[],[],[]];
 
-for(var i = 0; i < 10; i++){
-  for(var j = 0; j < 10; j++){
+for(let i = 0; i < 7; i++){
+  for(let j = 0; j < 7; j++){
     forceMagnitudes[i][j]= Math.random()*4-2;
-    forceDistances[i][j]= Math.random()/2+0.4;
+    forceDistances[i][j]= Math.random()/2+0.45;
   }
 }
 
 class particle {
 
   constructor(type, x, y) {
-    var canvas = document.querySelector('.myCanvas');
+    let canvas = document.querySelector('.myCanvas');
     this.ctx = canvas.getContext('2d');
     this.type = type;
     this.x = x;
@@ -68,16 +68,7 @@ class particle {
         this.color = 'rgb(125, 79, 20)'
         break;
       case 6:
-        this.color = 'rgb(125, 20, 36)'
-        break;
-      case 7:
-        this.color = 'rgb(162, 255, 0)'
-        break;
-      case 8:
-        this.color = 'rgb(166, 187, 237)'
-        break;
-      default:
-        this.color = 'rgb(85, 10, 122)'
+        this.color = 'rgb(255, 255, 255)'
         break;
       }
     this.ctx.fillStyle = this.color;
@@ -126,17 +117,17 @@ class particle {
 }
 
 function updateMouse(event) {
-  var particleBase = new particle(Math.floor(Math.random()*6), event.clientX, event.clientY);
+  let particleBase = new particle(Math.floor(Math.random()*6), event.clientX, event.clientY);
   particles.push(particleBase);
   particleBase.renderImage();
 }
 
 function force(forced, forcing){
-  var distance = Math.sqrt((forced.x - forcing.x)**2 + (forced.y - forcing.y)**2);
-  var force = 0
+  let distance = Math.sqrt((forced.x - forcing.x)**2 + (forced.y - forcing.y)**2);
+  let force = 0
 
   if(distance < 2*radius){
-    force = ((distance - 2*radius)**2)/(radius) * 0.45;
+    force = ((distance - 2*radius)**2)/(radius) * 0.6;
   } else if(distance <= radius*6*forceDistances[forced.type][forcing.type]){
     force = 0.5*(distance-2*radius*forceDistances[forced.type][forcing.type]);
     force *= forceMagnitudes[forced.type][forcing.type] * forceMultiplyer;
@@ -155,13 +146,8 @@ function loop(){
   ctx.fillStyle = 'rgb(0, 0, 0)';
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-  for(var i = 0; i < particles.length; i++){
-    this.forcex = 0;
-    this.forcey = 0;
-  }
-
-  for(var i = 0; i < particles.length; i++){
-    for(var j = 0; j < particles.length; j++){
+  for(let i = 0; i < particles.length; i++){
+    for(let j = 0; j < particles.length; j++){
       if(i != j){
         force(particles[i], particles[j]);
       }
@@ -178,8 +164,8 @@ function loop(){
 }
 
 function start(){
-  for(var i = 0; i < (canvas.width*canvas.height)/2250; i++){
-    var particleBase = new particle(Math.floor(Math.random()*10), Math.random()*canvas.width, Math.random()*canvas.height);
+  for(let i = 0; i < (canvas.width*canvas.height)/2300; i++){
+    let particleBase = new particle(Math.floor(Math.random()*7), Math.random()*canvas.width, Math.random()*canvas.height);
     particles.push(particleBase);
   }
 }
